@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Wallet - Save & Share Mobile Data</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f172a url('https://www.transparenttextures.com/patterns/cubes.png') repeat;
+      background-attachment: fixed;
+      background-size: auto;
+      color: #e0e0e0;
+      animation: backgroundShift 30s ease infinite;
+    }
+
+    @keyframes backgroundShift {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    header {
+      background-color: #0a192f;
+      color: #ffffff;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .container {
+      padding: 1rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    .card-toggle {
+      background: #1e293b;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      padding: 1rem;
+      transition: background-color 0.3s, transform 0.3s;
+      animation: slideUp 0.6s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .card-toggle:hover {
+      background: #334155;
+      transform: scale(1.02);
+    }
+    .card-toggle h2 {
+      margin: 0;
+      color: #38bdf8;
+    }
+    .card-content {
+      display: none;
+      background: #0f172a;
+      border-radius: 0 0 12px 12px;
+      padding: 1rem;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .data-balance {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffffff;
+      text-align: center;
+    }
+    .btn {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      width: 100%;
+    }
+    .btn:hover {
+      background-color: #1d4ed8;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #334155;
+      background-color: #1e293b;
+      color: #f1f5f9;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    ul {
+      padding-left: 1.5rem;
+    }
+    li {
+      color: #cbd5e1;
+      margin-bottom: 0.5rem;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 0.5rem;
+      }
+      .card-toggle {
+        font-size: 1rem;
+        padding: 0.75rem;
+      }
+      .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body onload="startSpeedCheck();">
+  <header>Data Wallet</header>
+  <div class="container">
+    <div class="card-toggle" onclick="toggleCard(this)">
+      <h2>Your Data Balance</h2>
+    </div>
+    <div class="card-content">
+      <div class="data-balance" id="dataBalance">1.5 GB</div>
+    </div>
+
+    <div class="card-toggle" onclick="toggleCard(this)">
+      <h2>Transfer Data</h2>
+    </div>
+    <div class="card-content">
+      <label for="recipient">Recipient Username:</label>
+      <input type="text" id="recipient" placeholder="Enter recipient">
+
+      <label for="amount">Amount (MB):</label>
+      <input type="number" id="amount" placeholder="Enter amount">
+
+      <button class="btn" onclick="transferData()">Transfer</button>
+    </div>
+
+    <div class="card-toggle" onclick="toggleCard(this)">
+      <h2>Transfer History</h2>
+    </div>
+    <div class="card-content">
+      <ul id="historyList"></ul>
+    </div>
+
+    <div class="card-toggle" onclick="toggleCard(this)">
+      <h2>Network Usage</h2>
+    </div>
+    <div class="card-content">
+      <p>Device Internet Usage: <span id="internetUsage">120.00 MB used</span></p>
+      <p>Real-time Speed: <span id="speed">3.50 Mbps</span></p>
+    </div>
+  </div>
+
+  <script>
+    function toggleCard(element) {
+      const content = element.nextElementSibling;
+      const isVisible = content.style.display === 'block';
+      document.querySelectorAll('.card-content').forEach(c => c.style.display = 'none');
+      if (!isVisible) content.style.display = 'block';
+    }
+
+    function transferData() {
+      const recipient = document.getElementById('recipient').value;
+      const amount = document.getElementById('amount').value;
+      if (recipient && amount) {
+        const list = document.getElementById('historyList');
+        const li = document.createElement('li');
+        li.textContent = `Transferred ${amount}MB to ${recipient}`;
+        list.appendChild(li);
+        document.getElementById('recipient').value = '';
+        document.getElementById('amount').value = '';
+      }
+    }
+
+    function startSpeedCheck() {
+      setInterval(() => {
+        const speed = (Math.random() * 5 + 1).toFixed(2);
+        document.getElementById('speed').textContent = `${speed} Mbps`;
+        document.getElementById('internetUsage').textContent = `${(Math.random() * 500).toFixed(2)} MB used`;
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
